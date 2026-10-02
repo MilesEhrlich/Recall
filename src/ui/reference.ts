@@ -43,7 +43,7 @@ export function renderReference(root: HTMLElement): void {
               cards.map((c) =>
                 h('article', { class: 'ref-entry', id: `ref-${c.id}` },
                   h('div', { class: 'ref-entry-head' }, kindChip(c.kind), sourceLabel(c.source)),
-                  mathBlock(c.front, 'math ref-term'),
+                  mathBlock(c.title, 'math ref-term'),
                   mathBlock(c.back, 'math ref-body'),
                 )),
             ))

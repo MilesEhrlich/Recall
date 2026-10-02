@@ -12,8 +12,11 @@ export interface CourseCard {
   id: string;
   kind: CardKind;
   source: string;
+  /** The question shown on the front of the card. */
   front: string;
   back: string;
+  /** Short name of the card (e.g. "Separable equation"), used as a heading in Reference. */
+  title: string;
   /** Definitions only: the term, its verbatim definition, and words to hide in quiz prompts. */
   term?: string;
   definition?: string;
@@ -29,14 +32,14 @@ export interface CourseDeck {
 
 function def(id: string, source: string, term: string, definition: string, extra?: string, mask?: string[]): CourseCard {
   return {
-    id, kind: 'definition', source, front: term,
+    id, kind: 'definition', source, front: term, title: term,
     back: extra ? `${definition}\n\n${extra}` : definition,
     term, definition, mask: mask ?? [term],
   };
 }
 
 function card(kind: CardKind, id: string, source: string, front: string, back: string): CourseCard {
-  return { id, kind, source, front, back };
+  return { id, kind, source, front, back, title: front };
 }
 
 const L1 = 'Lecture 1 · §1.1';
@@ -140,7 +143,8 @@ Rmk. The domain of the solution depends on $C$: $C<0$: $(-\infty,\infty)$; $C=0$
 $-5 = \dfrac{1}{0 - C} - 1$ ⇒ $C = \tfrac14$, so $y(t) = \dfrac{1}{t^2 - \frac14} - 1$ with domain $(-\tfrac12, \tfrac12)$.`),
   def('l3-implicit', L3, 'Implicit solution',
     r`$y^3 - 5y - 4t + t^2 = C$ ← difficult to solve. … implicit solution.`,
-    r`From Ex) $\dfrac{dy}{dt} = \dfrac{4-2t}{3y^2-5}$: $\int 3y^2 - 5\,dy = \int 4 - 2t\,dt$ ⇒ $y^3 - 5y = 4t - t^2 + C$.`,
+    r`The solution is only given implicitly: an equation relating $y$ and $t$ that is difficult to solve for $y$.
+From Ex) $\dfrac{dy}{dt} = \dfrac{4-2t}{3y^2-5}$: $\int 3y^2 - 5\,dy = \int 4 - 2t\,dt$ ⇒ $y^3 - 5y = 4t - t^2 + C$.`,
     ['implicit solution']),
   card('example', 'l3-ex-bacteria', L3, 'A bacteria culture grows. Initially it was 60. After 6 hours, it is 42500. When will the population reach 1,000,000?',
     r`$P(t) = 60e^{kt}$. $42500 = 60e^{6k}$ ⇒ $k = \tfrac16\ln\tfrac{42500}{60} \approx 1.09382$.
@@ -185,8 +189,7 @@ $T \approx -10.025\sin 0.262t + 0.561\cos 0.262t + 89 + Ce^{-0.4t} \lesssim 99$�
 
   // Lecture 5 · Appendix 1 Picard iteration
   card('remark', 'l5-multiple', L5, 'Does an IVP always have exactly one solution?',
-    r`Rmk. An IVP may have multiple solutions or no solution.
-Q. What can we say about existence/uniqueness of the solution of ODE?`),
+    r`Rmk. An IVP may have multiple solutions or no solution. That's why we need conditions that guarantee existence and uniqueness (the Lipschitz condition, below).`),
   card('theorem', 'l5-picard-thm', L5, 'Existence & uniqueness under the Lipschitz condition',
     r`Thm. $I :=$ open interval containing $a$. Suppose $f(t,y)$ is continuous and satisfies the Lipschitz condition in $y$ on $D = \{(t,y) \mid t \in I,\ y \in \mathbb{R}\}$. Then the IVP $\dfrac{dy}{dt} = f(t,y)$, $y(a) = b$ has a unique solution on $I$.`),
   def('l5-lipschitz', L5, 'Lipschitz condition (LC)',
@@ -302,7 +305,8 @@ $P_0 > C_1 ⇒ P\searrow C_1$; $C_2 < P_0 < C_1 ⇒ P\nearrow C_1$; $P_0 < C_2 �
 $h = 4$: one critical value $c = 2$, unstable. $h > 4$: no critical value, $P(t)\searrow -\infty$.`),
   def('l7-bifurcation', L7, 'Bifurcation diagram',
     r`We may draw a diagram (bifurcation diagram) of $(c, h)$.`,
-    r`For the fishing model: $c = 2 \pm\sqrt{4-h} \Leftrightarrow (c-2)^2 = 4 - h$, a parabola with its tip at $(h, c) = (4, 2)$.`,
+    r`It plots the critical points $c$ against the parameter $h$, showing where equilibria appear, merge or disappear.
+For the fishing model: $c = 2 \pm\sqrt{4-h} \Leftrightarrow (c-2)^2 = 4 - h$, a parabola with its tip at $(h, c) = (4, 2)$.`,
     ['bifurcation diagram', 'bifurcation']),
 ];
 
@@ -462,6 +466,93 @@ $y$ is a solution of $y'' + \lambda y = 0$ ⇔ $D(y) = -\lambda y$ ⇔ $-\lambda
 $y$ satisfies the boundary condition ⇔ $B(y) = (0,0)$ ⇔ $y \in \ker B$.
 $y$ is a solution ⇔ $y$ is an eigenvector of $D$ & $y \in \ker B$.`),
 ];
+
+/** The question on the front of each card (titles stay as the short names). */
+const QUESTIONS: Record<string, string> = {
+  'l1-ode': String.raw`What is an ordinary differential equation (ODE)?`,
+  'l1-solution': String.raw`What is a solution of an ODE?`,
+  'l1-order': String.raw`What is the order of an ODE?`,
+  'l1-growth': String.raw`If births and deaths are proportional to the population, what ODE models $P(t)$, and what is its solution?`,
+  'l2-first-order': String.raw`What is the general form of a first order equation?`,
+  'l2-ex-ivp': String.raw`What is the solution of the IVP $\dfrac{dy}{dt} = 4t - 3$, $y(1) = 10$?`,
+  'l2-slope-field': String.raw`What is a slope field, and how do you draw one?`,
+  'l2-solution-curve': String.raw`What is a solution curve in a slope field?`,
+  'l2-ex-slope': String.raw`For $\dfrac{dy}{dt} = -y(y-2)$, what does the slope field tell you about the solutions?`,
+  'l2-nonexist': String.raw`Must an IVP have a solution, and must it be defined for all $t$?`,
+  'l2-eu': String.raw`What does the existence & uniqueness theorem say about the IVP $\dfrac{dy}{dt} = f(t,y)$, $y(a) = b$?`,
+  'l3-separable': String.raw`When is a first order ODE called separable?`,
+  'l3-separable-method': String.raw`How do you solve a separable equation?`,
+  'l3-ex-ivp': String.raw`What is the solution of the IVP $\dfrac{dy}{dt} = -6ty$, $y(0) = 2$?`,
+  'l3-ex-domain': String.raw`What is the solution of $\dfrac{dy}{dt} = -2t(1+y)^2$, $y(0) = -5$, and on what domain does it exist?`,
+  'l3-implicit': String.raw`What is an implicit solution?`,
+  'l3-half-life': String.raw`What is the half-life of a decaying quantity?`,
+  'l4-linear': String.raw`What is a first order linear equation?`,
+  'l4-integrating-factor': String.raw`What is the integrating factor for $\dfrac{dy}{dt} + P(t)y = Q(t)$, and how do you use it?`,
+  'l4-ex-1': String.raw`What is the general solution of $\dfrac{dy}{dt} - 2y = 3e^{2t}$?`,
+  'l4-ex-2': String.raw`What is the general solution of $(t^2+1)\dfrac{dy}{dt} + 3ty = 6t$?`,
+  'l4-cooling': String.raw`What does Newton's law of cooling say?`,
+  'l5-picard-thm': String.raw`Under what conditions does the IVP $\dfrac{dy}{dt} = f(t,y)$, $y(a) = b$ have a unique solution on an open interval $I$ (Lipschitz version)?`,
+  'l5-lipschitz': String.raw`What does it mean for $f(t,y)$ to satisfy the Lipschitz condition in $y$?`,
+  'l5-mvt': String.raw`What is a quick way to check that $f$ satisfies the Lipschitz condition?`,
+  'l5-picard': String.raw`What is Picard iteration?`,
+  'l5-uniform': String.raw`What does it mean for $f_n(t)$ to converge to $f(t)$ uniformly?`,
+  'l5-bound': String.raw`Why do the Picard iterates converge, and what bound do you get?`,
+  'l6-malthus': String.raw`What is the Malthus model of population growth?`,
+  'l6-logistic': String.raw`What is the logistic model?`,
+  'l6-carrying': String.raw`In the logistic model $\dfrac{dP}{dt} = kP(M - P)$, what is $M$ called?`,
+  'l6-ex-logistic': String.raw`What is the solution of $\dfrac{dP}{dt} = 0.6P(4 - P)$, and what is its long-term limit?`,
+  'l6-cannibalism': String.raw`What ODE does the cannibalism model give?`,
+  'l6-disease': String.raw`How is the spread of a contagious disease modeled?`,
+  'l6-allee': String.raw`What is the Allee effect, and what equation models it?`,
+  'l6-doomsday': String.raw`What is the doomsday model, and where does it come from?`,
+  'l6-ex-doomsday': String.raw`What is the solution of $\dfrac{dP}{dt} = 0.6P(P - 4)$, and what happens for $P_0 < 4$ and $P_0 > 4$?`,
+  'l7-ex-cooling': String.raw`For the law of cooling with constant surrounding temperature $A$, what does the slope field show?`,
+  'l7-autonomous': String.raw`When is a first order ODE autonomous?`,
+  'l7-equilibrium': String.raw`What is an equilibrium solution?`,
+  'l7-critical': String.raw`What are the critical points of an autonomous equation $\dfrac{dy}{dt} = f(y)$?`,
+  'l7-stable': String.raw`When is a critical point stable, and when is it unstable?`,
+  'l7-ex-stability': String.raw`For $\dfrac{dP}{dt} = P(4 - P)(P - 1)$, what are the critical points, which are stable, and what is the limit behavior?`,
+  'l7-bifurcation': String.raw`What is a bifurcation diagram?`,
+  'l8-higher-linear': String.raw`What is the form of a higher order linear ODE?`,
+  'l8-homogeneous': String.raw`When is a linear ODE homogeneous?`,
+  'l8-hooke': String.raw`What does Hooke's law say, and what ODE does it give for a mass on a spring?`,
+  'l8-thm1': String.raw`If $y_1$ and $y_2$ solve a homogeneous equation (*), what else is a solution? (Thm 1)`,
+  'l8-thm1p': String.raw`What kind of set is the set of solutions of a homogeneous equation (*)? (Thm 1')`,
+  'l8-cinf': String.raw`What is $C^\infty(I)$?`,
+  'l8-thm2': String.raw`What does Thm 2 say about the IVP $y'' + py' + qy = f$, $y(a) = b_0$, $y'(a) = b_1$?`,
+  'l8-ex-ivp': String.raw`What is the solution of the IVP $y'' + y = 0$, $y(0) = 3$, $y'(0) = 2$?`,
+  'l8-indep': String.raw`When are two functions linearly independent?`,
+  'l8-two-solutions': String.raw`How many linearly independent solutions does a homogeneous equation (*) have?`,
+  'l8-ex-tet': String.raw`What are two linearly independent solutions of $y'' - 2y' + y = 0$?`,
+  'l9-general': String.raw`What does every solution of a homogeneous 2nd order linear ODE look like?`,
+  'l9-characteristic': String.raw`What is the characteristic equation of $ay'' + by' + cy = 0$, and where does it come from?`,
+  'l9-distinct': String.raw`If the characteristic equation has two distinct real roots $r_1, r_2$, what is the general solution?`,
+  'l9-repeated': String.raw`If $r$ is a repeated (multiple) root of the characteristic equation, what is the general solution?`,
+  'l9-euler': String.raw`What is Euler's formula?`,
+  'l9-complex': String.raw`If the characteristic roots are $r = a \pm bi$, what is the general solution?`,
+  'l9-ex-complex': String.raw`What is the general solution of $y'' + 2y' + 4y = 0$?`,
+  'l10-spring': String.raw`How do you solve the undamped spring equation $my'' + ky = 0$?`,
+  'l10-amplitude': String.raw`For $y = A\cos\omega_0t + B\sin\omega_0t$, what is the amplitude?`,
+  'l10-period': String.raw`What is the period of $y = C\cos(\omega_0t - \alpha)$?`,
+  'l10-frequency': String.raw`What is the frequency of $y = C\cos(\omega_0t - \alpha)$?`,
+  'l10-ex-spring': String.raw`A spring with $k = 50$ N/m holds $m = 0.5$ kg, with $y(0) = 1$ m and $y'(0) = -5$ m/s. What is $y(t)$?`,
+  'l10-damped': String.raw`How do you analyze the damped spring $my'' + cy' + ky = 0$?`,
+  'l10-over': String.raw`What is overdamping, and what does the solution look like?`,
+  'l10-critical': String.raw`What is critical damping, and what does the solution look like?`,
+  'l10-under': String.raw`What is underdamping, and what does the solution look like?`,
+  'l10-nonhomog': String.raw`How are the solutions of $ay'' + by' + cy = f(t)$ related to those of the homogeneous equation?`,
+  'l10-ex-guess': String.raw`What is the general solution of $y'' + 4y = t^2 + 1$?`,
+  'l11-bvp': String.raw`Does a boundary value problem always have a unique solution, like an IVP does?`,
+  'l11-eigen': String.raw`What is an eigenvalue problem (and an eigenfunction)?`,
+  'l11-ex-eigen': String.raw`What are the eigenvalues and eigenfunctions of $y'' + \lambda y = 0$, $y(0) = 0$, $y(L) = 0$?`,
+  'l11-hyperbolic': String.raw`How are $\cosh x$ and $\sinh x$ defined?`,
+  'l11-linear-algebra': String.raw`How can an eigenvalue problem be described in linear algebra terms?`,
+};
+
+for (const c of [...CH1, ...CH2, ...CH3]) {
+  const q = QUESTIONS[c.id];
+  if (q) c.front = q;
+}
 
 export const COURSE: CourseDeck[] = [
   {

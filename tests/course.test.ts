@@ -30,6 +30,17 @@ describe('course content', () => {
     }
   });
 
+  it('every card front is phrased as a question', () => {
+    for (const c of allCards) expect(c.front, c.id).toMatch(/\?/);
+  });
+
+  it('keeps a short title separate from the question', () => {
+    for (const c of allCards) {
+      expect(c.title.length, c.id).toBeGreaterThan(0);
+      if (c.kind === 'definition') expect(c.title, c.id).toBe(c.term);
+    }
+  });
+
   it('definitions carry the verbatim definition on the back', () => {
     expect(DEFINITIONS.length).toBeGreaterThanOrEqual(35);
     for (const d of DEFINITIONS) {
