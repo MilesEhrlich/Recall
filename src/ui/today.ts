@@ -10,7 +10,7 @@ import { startSession } from './review';
 import { recallMeter } from './summary';
 import { toast } from './toast';
 
-const TIP_KEY = 'slopefield/tip-dismissed';
+const TIP_KEY = 'recall-rate/tip-dismissed';
 const SECONDS_PER_CARD = 10;
 const LIST_LIMIT = 8;
 
@@ -116,7 +116,7 @@ function shortcut(href: string, ic: Parameters<typeof icon>[0], title: string, t
 
 function howItWorks(rerender: () => void): HTMLElement {
   return h('section', { class: 'tip' },
-    h('div', { class: 'tip-head' }, icon('info', 18), h('strong', {}, 'How Slopefield schedules your cards')),
+    h('div', { class: 'tip-head' }, icon('info', 18), h('strong', {}, 'How Recall Rate schedules your cards')),
     h('p', {},
       'Study once a day. Each card has a memory strength S; predicted recall decays like R(t) = e^(−t/S), and a card comes back on the day R would drop below 90% (never sooner than tomorrow). Missed cards get a second look at the end of the session. New cards arrive 15 a day in lecture order, or faster if needed to finish before an exam.'),
     h('ul', { class: 'tip-list' },
@@ -154,7 +154,7 @@ function examCard(rerender: () => void): HTMLElement {
   return h('section', { class: 'panel exam-card' },
     h('div', { class: 'panel-head' }, icon('calendar', 18), h('strong', {}, 'Have an exam coming up?')),
     h('p', { class: 'text-2 small', style: 'margin-bottom:10px' },
-      'Set the date and Slopefield paces new cards so everything is introduced in time, shortens review gaps as the exam approaches, and shows every card once more in the final 2 days.'),
+      'Set the date and Recall Rate paces new cards so everything is introduced in time, shortens review gaps as the exam approaches, and shows every card once more in the final 2 days.'),
     h('form', {
       class: 'stack', style: 'gap:10px',
       onsubmit: (e: Event) => {

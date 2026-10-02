@@ -3,7 +3,9 @@ import { COURSE } from './data/course';
 import { syncCourse } from './data/sync';
 import type { Card, Deck, Review } from './model/types';
 
-const KEY = 'slopefield/v1';
+const KEY = 'recall-rate/v1';
+/** Storage key used before the rename; read once so earlier progress carries over. */
+const LEGACY_KEY = 'slopefield/v1';
 
 export interface PracticeAttempt {
   id: string;
@@ -34,7 +36,7 @@ export function newCard(deckId: string, front: string, back: string, now = Date.
 function load(): AppState {
   let s: AppState = { decks: [], cards: [], reviews: [], practice: [], removedSeeds: [] };
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY);
     if (raw) s = { ...s, ...(JSON.parse(raw) as Partial<AppState>) };
   } catch (e) {
     console.error('Could not load saved data', e);

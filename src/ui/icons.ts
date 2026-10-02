@@ -38,15 +38,14 @@ export function icon(name: IconName, size = 20): SVGSVGElement {
   return tpl.content.firstElementChild as SVGSVGElement;
 }
 
-/** The Slopefield logo: a tiny slope field with one solution curve. */
+/** The Recall Rate logo: a forgetting curve that decays and jumps back up at each review. */
 export function brandMark(): SVGSVGElement {
   const tpl = document.createElement('template');
   tpl.innerHTML =
     '<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">' +
     '<rect width="32" height="32" rx="8" fill="var(--ink)"/>' +
-    '<g stroke="var(--bg)" stroke-opacity=".38" stroke-width="1.6" stroke-linecap="round">' +
-    '<path d="M6 9.5l3-1.5M14 9.5l3-1.5M22 9.5l3-1.5M6 16.5l3-.8M14 16.5l3-.8M22 16.5l3-.8M6 23.5l3 .6M14 23.5l3 .6M22 23.5l3 .6"/></g>' +
-    '<path d="M5 25c6-1 9-5 12-10s6-8 10-9" fill="none" stroke="#7c9cff" stroke-width="2.4" stroke-linecap="round"/>' +
-    '<circle cx="5" cy="25" r="2" fill="#ff7c66"/></svg>';
+    '<path d="M6 25.5h20" stroke="var(--bg)" stroke-opacity=".3" stroke-width="1.4" stroke-linecap="round"/>' +
+    '<path d="M6 7c2.2 4.5 3.6 7 5.5 8.6V8.5c2.6 3.6 4.6 5.6 7 6.7V8.6c2.4 2.4 4.4 3.6 7.5 4.2" fill="none" stroke="#7c9cff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<circle cx="11.5" cy="8.5" r="1.7" fill="#ff7c66"/><circle cx="18.5" cy="8.6" r="1.7" fill="#ff7c66"/></svg>';
   return tpl.content.firstElementChild as SVGSVGElement;
 }
