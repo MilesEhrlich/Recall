@@ -3,12 +3,6 @@
 A study app for Differential Equations (Lectures 1–11), built on a forgetting-curve model:
 each card's predicted recall obeys dR/dt = −R/S, so R(t) = e^(−t/S).
 
-```bash
-npm install
-npm run dev     # http://localhost:5173
-npm test        # unit tests
-npm run build   # static build in dist/
-```
 
 Data is stored in the browser's `localStorage` (key `recall-rate/v1`). Export a deck to back it up.
 
