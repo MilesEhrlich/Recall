@@ -1,6 +1,7 @@
 import { applyReview } from '../model/review';
 import { nextDue, todayQueue } from '../model/scheduler';
 import type { Card, Rating } from '../model/types';
+import { COURSE_CARDS } from '../data/course';
 import { deckById, save, state, uid } from '../store';
 import { h, navigate } from './dom';
 import { gapLabel, plural, startOfDay } from './format';
@@ -10,6 +11,8 @@ import { mathBlock } from './math';
 
 interface Entry {
   id: string;
+  /** Which version of a worked example to show (-1 = the card's own text). */
+  variant: number;
   /** A second look at a card missed earlier this session: shown and rated, but doesn't change S or get logged. */
   recheck: boolean;
 }
@@ -33,7 +36,22 @@ let session: Session | null = null;
 export function startSession(deckId?: string): void {
   const now = Date.now();
   const due = todayQueue(state.cards, state.decks, state.reviews, now, startOfDay(now)).filter((c) => !deckId || c.deckId === deckId);
-  session = { queue: due.map((c) => ({ id: c.id, recheck: false })), index: 0, revealed: false, counts: { got: 0, shaky: 0, missed: 0 }, rechecks: 0, history: [] };
+  session = { queue: due.map((c) => ({ id: c.id, recheck: false, variant: pickVariant(c) })), index: 0, revealed: false, counts: { got: 0, shaky: 0, missed: 0 }, rechecks: 0, history: [] };
+}
+
+/** Versions of a worked example (lecture original first), or null for cards without variants or that the user edited. */
+function variantsOf(card: Card) {
+  if (!card.seedId || card.userEdited) return null;
+  const v = COURSE_CARDS.get(card.seedId)?.variants;
+  return v && v.length > 1 ? v : null;
+}
+
+/** A random version, never the one shown last time. */
+function pickVariant(card: Card): number {
+  const v = variantsOf(card);
+  if (!v) return -1;
+  const choices = v.map((_, i) => i).filter((i) => i !== card.lastVariant);
+  return choices[Math.floor(Math.random() * choices.length)];
 }
 
 const RATINGS: { rating: Rating; label: string; key: string }[] = [
@@ -124,11 +142,12 @@ export function renderReview(root: HTMLElement, rerender: () => void): () => voi
       const i = state.cards.indexOf(card);
       const wasNew = card.lastReview === null;
       const { card: updated, review } = applyReview(card, rating, Date.now(), uid());
+      if (entry.variant >= 0) updated.lastVariant = entry.variant;
       state.cards[i] = updated;
       state.reviews.push(review);
       // Relearn within the session: missed cards (and shaky new ones) come back at the end once.
       const queuedRecheck = rating === 'missed' || (rating === 'shaky' && wasNew);
-      if (queuedRecheck) s.queue.push({ id: card.id, recheck: true });
+      if (queuedRecheck) s.queue.push({ id: card.id, recheck: true, variant: entry.variant });
       s.history.push({ kind: 'review', before: card, reviewId: review.id, rating, queuedRecheck });
       s.counts[rating]++;
       save();
@@ -148,14 +167,18 @@ export function renderReview(root: HTMLElement, rerender: () => void): () => voi
     return again ? `again soon · ${when}` : when;
   };
 
+  const versions = variantsOf(card);
+  const shown = versions && entry.variant >= 0 ? versions[entry.variant] : card;
+
   root.append(
     h('div', { class: `flashcard${s.revealed ? ' revealed' : ''}`, onclick: reveal },
       h('div', { class: 'card-meta' },
         h('span', { class: 'inline' }, kindChip(card.kind), sourceLabel(card.source),
-          entry.recheck ? h('span', { class: 'chip warn', title: "A second look at a card you missed. It won't change the schedule." }, 'Second look') : ''),
+          entry.recheck ? h('span', { class: 'chip warn', title: "A second look at a card you missed. It won't change the schedule." }, 'Second look') : '',
+          versions && entry.variant >= 0 ? h('span', { class: 'source', title: 'This problem type has several versions; you get a different one each review.' }, `version ${entry.variant + 1}/${versions.length}`) : ''),
         h('span', { class: 'source' }, deck?.name ?? '')),
-      mathBlock(card.front, 'math front'),
-      s.revealed && h('div', { class: 'answer' }, mathBlock(card.back, 'math back')),
+      mathBlock(shown.front, 'math front'),
+      s.revealed && h('div', { class: 'answer' }, mathBlock(shown.back, 'math back')),
     ),
     h('div', { class: 'dock' },
       s.revealed

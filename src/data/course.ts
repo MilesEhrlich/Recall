@@ -4,6 +4,7 @@
 // LaTeX: $...$ inline, $$...$$ display. String.raw keeps backslashes intact.
 
 import type { CardKind } from '../model/types';
+import { VARIANTS, type Variant } from './variants';
 
 const r = String.raw;
 
@@ -17,6 +18,8 @@ export interface CourseCard {
   back: string;
   /** Short name of the card (e.g. "Separable equation"), used as a heading in Reference. */
   title: string;
+  /** Worked examples: 5 interchangeable versions (the lecture's original first). One is picked per review. */
+  variants?: Variant[];
   /** Definitions only: the term, its verbatim definition, and words to hide in quiz prompts. */
   term?: string;
   definition?: string;
@@ -552,7 +555,12 @@ const QUESTIONS: Record<string, string> = {
 for (const c of [...CH1, ...CH2, ...CH3]) {
   const q = QUESTIONS[c.id];
   if (q) c.front = q;
+  const extra = VARIANTS[c.id];
+  if (extra) c.variants = [{ front: c.front, back: c.back }, ...extra];
 }
+
+/** Course cards by id, for looking up variants from saved cards. */
+export const COURSE_CARDS: Map<string, CourseCard> = new Map();
 
 export const COURSE: CourseDeck[] = [
   {
@@ -574,6 +582,8 @@ export const COURSE: CourseDeck[] = [
     cards: CH3,
   },
 ];
+
+for (const d of COURSE) for (const c of d.cards) COURSE_CARDS.set(c.id, c);
 
 /** Every definition in the course, in lecture order. */
 export const DEFINITIONS: CourseCard[] = COURSE.flatMap((d) => d.cards.filter((c) => c.kind === 'definition'));

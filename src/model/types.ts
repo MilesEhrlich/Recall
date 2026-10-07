@@ -29,6 +29,8 @@ export interface Card {
   seedId?: string;
   /** True once the user edits a built-in card, so content updates leave it alone. */
   userEdited?: boolean;
+  /** Worked examples: which of the problem's versions was shown last (so the next review shows a different one). */
+  lastVariant?: number;
 }
 
 export interface Review {

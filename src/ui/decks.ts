@@ -1,3 +1,4 @@
+import { COURSE_CARDS } from '../data/course';
 import { exportDeck, parseDeckFile } from '../io';
 import { examReadiness, inFinalWindow, isDue, nextDue, pacedNewCards } from '../model/scheduler';
 import type { Card, CardKind, Deck } from '../model/types';
@@ -390,6 +391,9 @@ function openCardEditor(deck: Deck, card: Card | null, rerender: () => void): vo
     return [
       h('form', { class: 'stack', onsubmit: (e: Event) => { e.preventDefault(); saveCard(false); } },
         card?.source ? h('div', { class: 'inline' }, kindChip(card.kind), sourceLabel(card.source), card.userEdited ? h('span', { class: 'chip' }, 'Edited') : '') : '',
+        card?.seedId && !card.userEdited && (COURSE_CARDS.get(card.seedId)?.variants?.length ?? 0) > 1
+          ? h('p', { class: 'panel-note', style: 'margin:0' }, `This problem has ${COURSE_CARDS.get(card.seedId)!.variants!.length} versions with different numbers; reviews rotate through them. Saving an edit replaces them with your text.`)
+          : '',
         h('div', { class: 'snippets', role: 'toolbar', 'aria-label': 'Insert LaTeX' },
           SNIPPETS.map((sn) =>
             h('button', {

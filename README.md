@@ -14,6 +14,10 @@ Data is stored in the browser's `localStorage` (key `recall-rate/v1`). Export a 
 - **Exam dates** — set from Today or a deck page. New cards are paced so every card is introduced before the final
   2-day window, gaps are capped at 20% of the time left (floored at 1 day), every card comes up again in the final
   window, and Insights shows readiness (predicted recall on exam day).
+- **Problem versions** — each worked-example card ("solve this IVP", "find the eigenvalues"…) has 5 versions:
+  the lecture's original plus 4 with different numbers (`src/data/variants.ts`). Reviews pick a random version,
+  never the one shown last time, so you practice the method instead of memorizing one answer. The scheduler tracks
+  the problem type. Every version's answer is generated from its parameters and checked numerically in the tests.
 - **Decks / Reference** — three chapter decks with every definition from the notes word for word, plus theorems,
   remarks, methods and worked examples. Reference is a searchable glossary of all of it, grouped by lecture.
 - **Practice** — quizzes: definitions (generated from the verbatim definitions), concepts, and numeric problems
