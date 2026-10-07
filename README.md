@@ -1,10 +1,10 @@
-# Recall Rate
+# Recall
 
 A study app for Differential Equations (Lectures 1–11), built on a forgetting-curve model:
 each card's predicted recall obeys dR/dt = −R/S, so R(t) = e^(−t/S).
 
 
-Data is stored in the browser's `localStorage` (key `recall-rate/v1`). Export a deck to back it up.
+Data is stored in the browser's `localStorage` (key `recall/v1`). Export a deck to back it up.
 
 ## What's inside
 

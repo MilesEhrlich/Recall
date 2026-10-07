@@ -38,7 +38,7 @@ export function icon(name: IconName, size = 20): SVGSVGElement {
   return tpl.content.firstElementChild as SVGSVGElement;
 }
 
-/** The Recall Rate logo: a forgetting curve that decays and jumps back up at each review. */
+/** The Recall logo: a forgetting curve that decays and jumps back up at each review. */
 export function brandMark(): SVGSVGElement {
   const tpl = document.createElement('template');
   tpl.innerHTML =

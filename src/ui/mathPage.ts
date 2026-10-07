@@ -1,4 +1,4 @@
-// "The Math": an interactive explanation of the model Recall Rate runs on.
+// "The Math": an interactive explanation of the model Recall runs on.
 // Everything here calls the same functions the scheduler and Insights use.
 
 import { CONFIG } from '../config';
@@ -40,7 +40,7 @@ export function renderMath(root: HTMLElement): () => void {
   root.append(
     h('header', { class: 'page-head' },
       h('div', { class: 'eyebrow' }, 'Insights'),
-      h('h1', {}, 'The math behind Recall Rate'),
+      h('h1', {}, 'The math behind Recall'),
       h('p', { class: 'page-sub' }, 'The scheduler is a first-order linear ODE, a few update rules, and two least-squares fits. Every chart below runs the app’s real code with the constants from config.ts.'),
     ),
     insightsTabs('math'),
@@ -329,7 +329,7 @@ Insights shows this half-life per deck. Here it is on simulated data (or your ow
   const s5 = section('05', 'Exponential vs. power law',
     prose(r`Real forgetting often drops fast and then levels off, which a power law captures better:
 $$R(t) = \left(1 + \frac ta\right)^{-b}\quad\Longrightarrow\quad \ln R = -b\,\ln\!\left(1 + \frac ta\right).$$
-For a fixed $a$ this is again a line through the origin in $x = \ln(1 + t/a)$, so $b = -\sum x_i\ln r_i / \sum x_i^2$ is exact; Recall Rate then searches over $a$ (a log-spaced grid followed by golden-section refinement). As $a \to \infty$ with $b/a \to 1/S$, $(1 + t/a)^{-b} \to e^{-t/S}$: the exponential is a limiting case, so the power law never fits worse in log space. The two are compared by RMS error in $R$. Because each review only records one of three recall levels, small data sets give noisy fits (sometimes with extreme $a$); the comparison gets meaningful as reviews accumulate. Switch the simulation to "power law" to see it win:`),
+For a fixed $a$ this is again a line through the origin in $x = \ln(1 + t/a)$, so $b = -\sum x_i\ln r_i / \sum x_i^2$ is exact; Recall then searches over $a$ (a log-spaced grid followed by golden-section refinement). As $a \to \infty$ with $b/a \to 1/S$, $(1 + t/a)^{-b} \to e^{-t/S}$: the exponential is a limiting case, so the power law never fits worse in log space. The two are compared by RMS error in $R$. Because each review only records one of three recall levels, small data sets give noisy fits (sometimes with extreme $a$); the comparison gets meaningful as reviews accumulate. Switch the simulation to "power law" to see it win:`),
     powBox,
   );
   draw();
